@@ -58,6 +58,29 @@ app.post('/api/v2/image', upload.single('file'), async (req, res) => {
   }
 });
 
+app.get('/api/v2/getimage', async (req, res) => {
+  try {
+    const apiKey = req.header('Authorization') || req.query.apiKey;
+    if (!apiKey) return res.status(401).json({ error: 'Missing API key' });
+
+    const [rows] = await pool.query(
+      'SELECT filename, fm_url, created_at FROM images WHERE api_key = ? ORDER BY created_at DESC',
+      [apiKey]
+    );
+
+    const data = rows.map(r => ({
+      filename:  r.filename,
+      url:       `${req.protocol}://${req.get('host')}/${encodeURIComponent(apiKey)}/${encodeURIComponent(r.filename)}`,
+      fm_url:    r.fm_url,
+      createdAt: r.created_at
+    }));
+    return res.json({ status: 'ok', data });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/:apiKey/:filename', async (req, res) => {
   try {
     const { apiKey, filename } = req.params;
