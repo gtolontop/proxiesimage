@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v2/image';
-const API_KEY = 'REDACTED_API_KEY';
+const API_KEY = import.meta.env.VITE_API_KEY ?? '';
 
 const App: React.FC = () => {
   const [link, setLink] = useState<string>('');
